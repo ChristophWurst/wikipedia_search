@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>wikipedia_search</id>
+	<name>Wikipedia Search</name>
+	<summary>Search Wikipedia articles from Nextcloud's unified search</summary>
+	<description>Find Wikipedia articles</description>
+	<version>0.1.0</version>
+	<licence>mit</licence>
+	<author>Christoph Wurst</author>
+	<namespace>WikipediaSearch</namespace>
+	<category>integration</category>
+	<dependencies>
+		<php min-version="7.2" max-version="7.4" />
+		<nextcloud min-version="20" max-version="21" />
+	</dependencies>
+	<commands>
+		<command>OCA\WikipediaSearch\Command\Search</command>
+	</commands>
+</info>
