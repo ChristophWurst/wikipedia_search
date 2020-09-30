@@ -14,7 +14,4 @@
 		<php min-version="7.2" max-version="7.4" />
 		<nextcloud min-version="20" max-version="21" />
 	</dependencies>
-	<commands>
-		<command>OCA\WikipediaSearch\Command\Search</command>
-	</commands>
 </info>
