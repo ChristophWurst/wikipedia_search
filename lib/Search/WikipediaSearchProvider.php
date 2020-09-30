@@ -14,8 +14,12 @@ use OCP\Search\ISearchQuery;
 use OCP\Search\SearchResult;
 use OCP\Search\SearchResultEntry;
 use function array_map;
+use function mb_strpos;
+use function mb_substr;
+use function strlen;
 
 class WikipediaSearchProvider implements IProvider {
+	private const PREFIX = "wiki ";
 
 	/** @var SearchService */
 	private $searchService;
@@ -42,12 +46,21 @@ class WikipediaSearchProvider implements IProvider {
 	}
 
 	public function search(IUser $user, ISearchQuery $query): SearchResult {
+		$term = $query->getTerm();
+		if (mb_strpos($term, self::PREFIX) !== 0) {
+			return SearchResult::complete(
+				$this->getName(),
+				[]
+			);
+		}
+		$term = mb_substr($term, strlen(self::PREFIX));
+
 		$cursor = $query->getCursor();
 		if ($cursor !== null) {
 			$cursor = (int) $cursor;
 		}
 
-		$articles = $this->searchService->search($query->getTerm(), $cursor);
+		$result = $this->searchService->search($term, $cursor);
 		$results = array_map(function(WikipediaArticle $article) {
 			return new SearchResultEntry(
 				'',
@@ -56,7 +69,7 @@ class WikipediaSearchProvider implements IProvider {
 				$article->getUrl(),
 				'icon-info'
 			);
-		}, $articles);
+		}, $result->getArticles());
 
 		return SearchResult::paginated(
 			$this->getName(),

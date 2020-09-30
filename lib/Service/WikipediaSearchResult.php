@@ -17,7 +17,7 @@ class WikipediaSearchResult {
 	 * @param int|null $offset
 	 */
 	public function __construct(array $articles,
-								int $offset) {
+								?int $offset) {
 		$this->articles = $articles;
 		$this->offset = $offset;
 	}
