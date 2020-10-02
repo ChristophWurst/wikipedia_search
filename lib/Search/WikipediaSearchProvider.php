@@ -19,16 +19,19 @@ use function mb_substr;
 use function strlen;
 
 class WikipediaSearchProvider implements IProvider {
-	private const PREFIX = "wiki ";
 
-	/** @var SearchService */
-	private $searchService;
-
-	/** @var IL10N */
+	/**
+	 * @var IL10N
+	 */
 	private $l10n;
 
-	public function __construct(SearchService $searchService,
-								IL10N $l10n) {
+	/**
+	 * @var SearchService
+	 */
+	private $searchService;
+
+	public function __construct(IL10N $l10n,
+								SearchService $searchService) {
 		$this->l10n = $l10n;
 		$this->searchService = $searchService;
 	}
@@ -38,43 +41,44 @@ class WikipediaSearchProvider implements IProvider {
 	}
 
 	public function getName(): string {
-		return $this->l10n->t('Wikipedia');
+		return $this->l10n->t('Wikipedia articles');
 	}
 
 	public function getOrder(string $route, array $routeParameters): int {
-		return 80; // Less important -> higher number
+		return 80;
 	}
 
 	public function search(IUser $user, ISearchQuery $query): SearchResult {
-		$term = $query->getTerm();
-		if (mb_strpos($term, self::PREFIX) !== 0) {
+		if (mb_strpos($query->getTerm(), "wiki ") !== 0) {
 			return SearchResult::complete(
 				$this->getName(),
 				[]
 			);
 		}
-		$term = mb_substr($term, strlen(self::PREFIX));
 
-		$cursor = $query->getCursor();
-		if ($cursor !== null) {
-			$cursor = (int) $cursor;
+		$term = mb_substr($query->getTerm(), strlen("wiki "));
+		$offset = $query->getCursor();
+		if ($offset !== null) {
+			$offset = (int) $offset;
 		}
 
-		$result = $this->searchService->search($term, $cursor);
-		$results = array_map(function(WikipediaArticle $article) {
-			return new SearchResultEntry(
-				'',
-				$article->getTitle(),
-				$this->l10n->t('Read more on Wikipedia'),
-				$article->getUrl(),
-				'icon-info'
-			);
-		}, $result->getArticles());
+		$result = $this->searchService->search(
+			$term,
+			$offset
+		);
 
 		return SearchResult::paginated(
 			$this->getName(),
-			$results,
-			count($results) + $cursor
+			array_map(function(WikipediaArticle $article) {
+				return new SearchResultEntry(
+					'',
+					$article->getTitle(),
+					$this->l10n->t('Find more on Wikipedia'),
+					$article->getUrl(),
+					'icon-info'
+				);
+			}, $result->getArticles()),
+			$result->getOffset()
 		);
 	}
 }

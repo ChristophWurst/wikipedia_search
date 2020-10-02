@@ -26,7 +26,7 @@ class SearchService {
 	}
 
 	public function search(?string $term = null, ?int $offset = null): WikipediaSearchResult {
-		$this->logger->debug('finding the latest cat facts');
+		$this->logger->debug('finding the latest wikipedia articles');
 
 		$url = "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" . urlencode($term) . "&format=json";
 		if ($offset !== null) {
