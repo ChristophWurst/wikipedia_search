@@ -14,6 +14,9 @@ use OCP\Search\ISearchQuery;
 use OCP\Search\SearchResult;
 use OCP\Search\SearchResultEntry;
 use function array_map;
+use function mb_strpos;
+use function mb_substr;
+use function strlen;
 
 class WikipediaSearchProvider implements IProvider {
 
@@ -46,13 +49,21 @@ class WikipediaSearchProvider implements IProvider {
 	}
 
 	public function search(IUser $user, ISearchQuery $query): SearchResult {
+		if (mb_strpos($query->getTerm(), "wiki ") !== 0) {
+			return SearchResult::complete(
+				$this->getName(),
+				[]
+			);
+		}
+
+		$term = mb_substr($query->getTerm(), strlen("wiki "));
 		$offset = $query->getCursor();
 		if ($offset !== null) {
 			$offset = (int) $offset;
 		}
 
 		$result = $this->searchService->search(
-			$query->getTerm(),
+			$term,
 			$offset
 		);
 
